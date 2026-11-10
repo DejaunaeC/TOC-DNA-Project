@@ -1,0 +1,156 @@
+
+# VALIDATION & START CODON
+
+# DNA alphabet 
+ALPHABET = {"A", "T", "G", "C"}
+
+# Transition table for the Validation DFA
+validation_transitions = {
+
+    # q0 is the initial and accepting state.
+    # All valid DNA characters keep the DFA in q0.
+    "q0": {
+        "A": "q0",
+        "T": "q0",
+        "G": "q0",
+        "C": "q0"
+    },
+
+    # D is the dead state.
+    # Once entered, the DFA stays in D.
+    "D": {
+        "A": "D",
+        "T": "D",
+        "G": "D",
+        "C": "D"
+    }
+}
+
+# Initial state of the Validation DFA
+validation_start_state = "q0"
+
+# Accepting state of the Validation DFA
+validation_accepting_states = {"q0"}
+
+# Transition table for the Start Codon DFA
+start_codon_transitions = {
+
+    # q0 is the initial state.
+    # Reading A moves the DFA to q1.
+    "q0": {
+        "A": "q1",
+        "T": "D",
+        "G": "D",
+        "C": "D"
+    },
+
+    # A was read
+    # Reading T moves the DFA to q2
+    "q1": {
+        "A": "D",
+        "T": "q2",
+        "G": "D",
+        "C": "D"
+    },
+
+    # AT was read
+    # Reading G moves the DFA to the accepting state q3.
+    "q2": {
+        "A": "D",
+        "T": "D",
+        "G": "q3",
+        "C": "D"
+    },
+
+    # q3 is the accepting state.
+    # Any additional character sends the DFA to D
+    # because the complete string must be exactly ATG.
+    "q3": {
+        "A": "D",
+        "T": "D",
+        "G": "D",
+        "C": "D"
+    },
+
+    # D is the dead state and loops to itself.
+    "D": {
+        "A": "D",
+        "T": "D",
+        "G": "D",
+        "C": "D"
+    }
+}
+
+# Initial state of the Start Codon DFA
+start_codon_start_state = "q0"
+
+# Accepting state of the Start Codon DFA
+start_codon_accepting_states = {"q3"}
+
+def run_dfa(sequence, transitions, start_state, accepting_states):
+
+    # Processing from the initial state
+    current_state = start_state
+
+    # Read the input one character at a time
+    for symbol in sequence:
+
+        # Check whether the character belongs
+        # to the alphabet
+        if symbol not in ALPHABET:
+
+            # Invalid characters are rejected
+            current_state = "D"
+
+        else:
+
+            # Follow the transition table to find
+            # the next state.
+            current_state = transitions[current_state][symbol]
+
+    # Accept if the final state is an accepting state.
+    return current_state in accepting_states
+
+def validate_dna_characters(sequence):
+
+    return run_dfa(
+        sequence,
+        validation_transitions,
+        validation_start_state,
+        validation_accepting_states
+    )
+
+def match_start_codon(sequence):
+
+    return run_dfa(
+        sequence,
+        start_codon_transitions,
+        start_codon_start_state,
+        start_codon_accepting_states
+    )
+
+#Main program
+
+# Ask the user to enter a DNA sequence.
+new_input = input("\nEnter a DNA sequence: ")
+
+if validate_dna_characters(new_input):
+
+    print("Valid characters")
+
+    if match_start_codon(new_input):
+
+        print("Exact match for the start codon ATG.")
+
+    else:
+
+        print("Rejected: The sequence is not a match for ATG.")
+
+else:
+
+    print("Rejected: The sequence contains invalid DNA characters.")
+
+    # Invalid sequences are not passed to the next stage
+    print("\nInvalid")
+    
+\
