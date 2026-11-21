@@ -6,6 +6,40 @@ from diagram import draw_dfa
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+# ----- VALIDATION DFA -----
+
+alphabet = {"A", "C", "G", "T"}
+
+validation_dfa = {
+    "q0": {
+        "A": "q0",
+        "C": "q0",
+        "G": "q0",
+        "T": "q0",
+        "OTHER": "qDead"
+    },
+
+    "qDead": {
+        "A": "qDead",
+        "C": "qDead",
+        "G": "qDead",
+        "T": "qDead",
+        "OTHER": "qDead"
+    }
+}
+
+def validate_sequence(seq):
+    current = "q0"
+
+    for char in seq:
+        if char in alphabet:
+            current = validation_dfa[current][char]
+        else:
+            current = validation_dfa[current]["OTHER"]
+
+    return current == "q0"
+
+
 #----nfa-----
 nfa = {
     "q0": {"A": {"q1"}},
@@ -62,6 +96,17 @@ def on_check():
         result_label.configure(text="Please enter a sequence", text_color="orange")
         return
 
+ # ----- VALIDATE DNA SEQUENCE FIRST -----
+
+    if not validate_sequence(seq):
+        result_label.configure(
+            text="Invalid DNA sequence: Only A, C, G, T allowed",
+            text_color="#e74c3c"
+        )
+
+        trace_box.delete("1.0", "end")
+        trace_box.insert("end", "Validation DFA: Rejected")
+        return
     trace_box.delete("1.0", "end")
     current = START
     visited = [current]
