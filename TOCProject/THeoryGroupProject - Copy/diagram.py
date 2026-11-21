@@ -14,7 +14,7 @@ def draw_dfa(canvas, transitions, accepting, start, current):
             if t not in depth:
                 depth[t] = depth[s] + 1
                 order.append(t)
-    names = {s: f"S{i}" for i, s in enumerate(order)}
+    names = {s: f"Q{i}" for i, s in enumerate(order)}
 
     # Layout: one column per BFS depth, left to right
     cols = {}
